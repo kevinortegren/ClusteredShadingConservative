@@ -1,0 +1,7 @@
+[Bb]uild/
+
+*.sdf
+*.suo
+*.opensdf
+*.user
+*.db
