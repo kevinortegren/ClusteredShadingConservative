@@ -314,10 +314,14 @@ KBuffer KGraphicsDevice::CreateBuffer(uint32 num_elements, uint32 element_size, 
 {
 	KBuffer buffer;
 
+	UINT64 aligned_width = element_size * num_elements;
+	if (type == KBufferType::CONSTANT)
+		aligned_width = (aligned_width + D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1) & ~(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
+
 	m_Device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(heap_type, 0, 0),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(element_size * num_elements),
+		&CD3DX12_RESOURCE_DESC::Buffer(aligned_width),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&buffer.resource));
@@ -359,9 +363,11 @@ void KGraphicsDevice::CreateConstantBufferView(KBuffer* buffer, uint32 num_eleme
 {
 	uint32 size_in_bytes = num_elements * element_size;
 
+	size_in_bytes = (size_in_bytes + D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1) & ~(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
+
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc;
 	cbv_desc.BufferLocation = buffer->resource->GetGPUVirtualAddress();
-	cbv_desc.SizeInBytes = (size_in_bytes < 256) ? 256 : size_in_bytes;
+    cbv_desc.SizeInBytes = size_in_bytes;
 
 	buffer->cbv.cpu_handle = m_DescHeapCBV_SRV.GetNewCPUHandle();
 	buffer->cbv.gpu_handle = m_DescHeapCBV_SRV.GetGPUHandleAtHead();
