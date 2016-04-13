@@ -39,8 +39,54 @@ ESC         - Exit program
 
 
 ###Gamepad
-![Alt text](http://kevinortegren.com/Downloads/Img/controller_mapping.png)
+![Mapping](http://kevinortegren.com/Downloads/Img/controller_mapping.png)
 
 
-All shortcuts are accessible throughcan be altered through the UI:
+All shortcuts are accessible through the UI.
+
+![Settings](http://kevinortegren.com/Downloads/Img/Settings.png)
+
+##UI
+
+The UI has the following functionality:
+
+**Lights**
+
+- Toggle point/spot lights on or off.
+- Toggle light movement.
+- Set number of lights to display.
+
+**Light shapes**
+
+- Toggle display of light shapes.
+- Select which LOD to use for the light shapes.
+- Select the number of light shapes to be rendered.
+
+**Clustering**
+
+- Select the depth distribution mode.
+- Select precise or approximated clustering(Use approx. pipe). 
+- Show density map with radar colors that shows the number of lights processed per pixel. See legend for color explanation.
+
+![Legend](http://kevinortegren.com/Downloads/Img/legend.png)
+
+- Print number of indices in the Linked Light List.
+- Take a snapshot of all the clusters that were accessed for lighting the frame. Display the clusters in world space to look at.
+
+**Snap shot**
+
+- Select the light type and the light index to take a snap shot of. 
+- Hit "Shape cluster snap" to show all the clusters that the specified light was assigned to during the snap shot frame.
+
+**Benchmark**
+
+- Displays timings in milliseconds (apart from FPS) for different passes on the GPU.
+- Total LA == The sum of alla shell pass times and fill pass times
+- Total GPU time == The sum of Total LA and Shading time
+
+**Note:**
+
+The UI uses a modified version of AntTweakBar to work with DX12 and does exhibit some minor issues. Numpad keys don't work as input. Input fields are not cleared immediately on new input. Mouse events are forwarded to the camera movement through the UI...
+
+
 Screenshots and some outdated info: http://www.kevinortegren.com/portfolio/clustered-shading-assigning-arbitrarily-shaped-convex-light-volumes-using-conservative-rasterization/
