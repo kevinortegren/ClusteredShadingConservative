@@ -160,12 +160,14 @@ LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_comm
 	//StartOffsetBuffer
 	//////////////////////////////////////////////////////////////////////////
 	CD3DX12_RESOURCE_DESC start_buffer_resource_desc(D3D12_RESOURCE_DIMENSION_BUFFER, 0, (Constants::NR_OF_CLUSTS) * sizeof(uint32), 1, 1, 1,
-		DXGI_FORMAT_UNKNOWN, 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		DXGI_FORMAT_UNKNOWN, 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, D3D12_RESOURCE_FLAG_NONE);
+	CD3DX12_RESOURCE_DESC start_buffer_uav_resource_desc = start_buffer_resource_desc;
+	start_buffer_uav_resource_desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	shared_context.gfx_device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT, 0, 0),
 		D3D12_HEAP_FLAG_NONE,
-		&start_buffer_resource_desc,
+		&start_buffer_uav_resource_desc,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		nullptr,
 		IID_PPV_ARGS(&m_StartOffsetBuffer));
@@ -226,12 +228,14 @@ LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_comm
 	//UAV COUNTER  /////////////////////////////////////////////////////////// 
 	//////////////////////////////////////////////////////////////////////////
 	CD3DX12_RESOURCE_DESC uav_counter_resource_desc(D3D12_RESOURCE_DIMENSION_BUFFER, 0, sizeof(uint32), 1, 1, 1,
-		DXGI_FORMAT_UNKNOWN, 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		DXGI_FORMAT_UNKNOWN, 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, D3D12_RESOURCE_FLAG_NONE);
+	CD3DX12_RESOURCE_DESC uav_counter_uav_resource_desc = uav_counter_resource_desc;
+	uav_counter_uav_resource_desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	shared_context.gfx_device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT, 0, 0),
 		D3D12_HEAP_FLAG_NONE,
-		&uav_counter_resource_desc,
+		&uav_counter_uav_resource_desc,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		nullptr,
 		IID_PPV_ARGS(&m_StartOffsetBufferCounter));
@@ -265,12 +269,14 @@ LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_comm
 	//Linked Light List //////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	CD3DX12_RESOURCE_DESC lll_resource_desc(D3D12_RESOURCE_DIMENSION_BUFFER, 0, (Constants::LIGHT_INDEX_LIST_COUNT) * sizeof(uint32) * 2, 1, 1, 1,
-		DXGI_FORMAT_UNKNOWN, 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		DXGI_FORMAT_UNKNOWN, 1, 0, D3D12_TEXTURE_LAYOUT_ROW_MAJOR, D3D12_RESOURCE_FLAG_NONE);
+	CD3DX12_RESOURCE_DESC lll_uav_resource_desc = lll_resource_desc;
+	lll_uav_resource_desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	shared_context.gfx_device->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT, 0, 0),
 		D3D12_HEAP_FLAG_NONE,
-		&lll_resource_desc,
+		&lll_uav_resource_desc,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		nullptr,
 		IID_PPV_ARGS(&m_LinkedIndexList));
