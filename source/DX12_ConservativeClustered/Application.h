@@ -11,7 +11,7 @@
 #include "KGraphicsDevice.h"
 #include "KShader.h"
 #include "GBuffer.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include <algorithm>
 #include "LightAssignmentRaster.h"
 #include "ClusterRenderer.h"
@@ -32,7 +32,7 @@ struct LinkedLightID
 class Application
 {
 public:
-	Application(char* working_dir);
+	Application(char* p_args);
 	~Application();
 
 	void ShadeClusterSnapShot();

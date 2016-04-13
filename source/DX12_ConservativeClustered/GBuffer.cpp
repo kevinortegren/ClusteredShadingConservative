@@ -1,8 +1,10 @@
 #include "GBuffer.h"
 #include "KGraphicsDevice.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include "d3dx12.h"
+
+using namespace Log;
 
 GBuffer::GBuffer()
 {
@@ -45,7 +47,7 @@ GBuffer::GBuffer()
 
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODesc, IID_PPV_ARGS(&m_Pso));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create PSO");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create PSO");
 
 	int tempw = shared_context.gfx_device->GetWindowWidth();
 	int temph = shared_context.gfx_device->GetWindowHeight();
@@ -68,32 +70,4 @@ GBuffer::~GBuffer()
 	m_RootSignature->Release();
 }
 
-ID3D12PipelineState* GBuffer::GetPSO()
-{
-	return m_Pso;
-}
 
-ID3D12RootSignature* GBuffer::GetRootSig()
-{
-	return m_RootSignature;
-}
-
-KDepthTarget* GBuffer::GetDepthTarget(int32 swap_index)
-{
-	return &m_DepthTarget[swap_index];
-}
-
-KRenderTarget* GBuffer::GetColorRT(int32 swap_index)
-{
-	return &m_ColorRT[swap_index];
-}
-
-KRenderTarget* GBuffer::GetNormalRT(int32 swap_index)
-{
-	return &m_NormalRT[swap_index];
-}
-
-KRenderTarget* GBuffer::GetPositionRT(int32 swap_index)
-{
-	return &m_PositionRT[swap_index];
-}

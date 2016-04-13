@@ -46,13 +46,4 @@ void KUAVTex2D::CreateUAVTex2DArray(DXGI_FORMAT tex_format, uint32 width, uint32
 	shared_context.gfx_device->GetDevice()->CreateUnorderedAccessView(m_Resource, nullptr, &UAVDesc, m_UAVCPUHandle);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE KUAVTex2D::GetUAVGPUHandle()
-{
-	return m_UAVGPUHandle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE KUAVTex2D::GetUAVCPUHandle()
-{
-	return m_UAVCPUHandle;
-}
 

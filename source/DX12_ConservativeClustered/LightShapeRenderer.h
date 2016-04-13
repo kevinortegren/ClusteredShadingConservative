@@ -7,9 +7,9 @@ public:
 	LightShapeRenderer();
 	~LightShapeRenderer();
 
-	ID3D12PipelineState* GetPSO();
-	ID3D12PipelineState* GetSpotPSO();
-	ID3D12RootSignature* GetRootSig();
+	ID3D12PipelineState* GetPSO()		{ return m_PSO; }
+	ID3D12PipelineState* GetSpotPSO()	{ return m_SpotPSO; }
+	ID3D12RootSignature* GetRootSig()	{ return m_RootSignature; }
 
 private:
 	ID3D12PipelineState* m_PSO;

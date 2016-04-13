@@ -10,8 +10,10 @@ class KShader
 public:
 	KShader(LPCWSTR file_path, const char* entry_point, const char* target, const D3D_SHADER_MACRO* macro_list = nullptr);
 	~KShader();
-	LPVOID GetBufferPointer();
-	SIZE_T GetBufferSize();
+
+	LPVOID GetBufferPointer()	{ return m_Blob->GetBufferPointer(); }
+	SIZE_T GetBufferSize()		{ return m_Blob->GetBufferSize(); }
+
 	D3D12_INPUT_LAYOUT_DESC GetInputLayout();
 
 private:

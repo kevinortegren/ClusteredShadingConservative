@@ -9,14 +9,13 @@ public:
 	GBuffer();
 	~GBuffer();
 
-	ID3D12PipelineState* GetPSO();
-	ID3D12RootSignature* GetRootSig();
+	ID3D12PipelineState* GetPSO()					{ return m_Pso; }
+	ID3D12RootSignature* GetRootSig()				{ return m_RootSignature; }
+	KDepthTarget* GetDepthTarget(int32 swap_index)	{ return &m_DepthTarget[swap_index]; }
 
-	KDepthTarget* GetDepthTarget(int32 swap_index);
-
-	KRenderTarget* GetColorRT(int32 swap_index);
-	KRenderTarget* GetNormalRT(int32 swap_index);
-	KRenderTarget* GetPositionRT(int32 swap_index);
+	KRenderTarget* GetColorRT(int32 swap_index)		{ return &m_ColorRT[swap_index]; }
+	KRenderTarget* GetNormalRT(int32 swap_index)	{ return &m_NormalRT[swap_index]; }
+	KRenderTarget* GetPositionRT(int32 swap_index)	{ return &m_PositionRT[swap_index]; }
 
 private:
 

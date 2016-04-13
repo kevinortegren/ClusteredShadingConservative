@@ -1,8 +1,10 @@
 #include "LightShapeRenderer.h"
 #include "Constants.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include "d3dx12.h"
+
+using namespace Log;
 
 LightShapeRenderer::LightShapeRenderer()
 {
@@ -71,12 +73,12 @@ LightShapeRenderer::LightShapeRenderer()
 
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSO));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSO");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSO");
 
 	PSODescFront.VS = { reinterpret_cast<BYTE*>(spotvertexShader.GetBufferPointer()), spotvertexShader.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_SpotPSO));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_SpotPSO");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_SpotPSO");
 }
 
 LightShapeRenderer::~LightShapeRenderer()
@@ -84,20 +86,5 @@ LightShapeRenderer::~LightShapeRenderer()
 	m_PSO->Release();
 	m_SpotPSO->Release();
 	m_RootSignature->Release();
-}
-
-ID3D12PipelineState* LightShapeRenderer::GetPSO()
-{
-	return m_PSO;
-}
-
-ID3D12RootSignature* LightShapeRenderer::GetRootSig()
-{
-	return m_RootSignature;
-}
-
-ID3D12PipelineState* LightShapeRenderer::GetSpotPSO()
-{
-	return m_SpotPSO;
 }
 

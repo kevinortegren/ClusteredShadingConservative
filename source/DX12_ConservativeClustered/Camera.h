@@ -22,13 +22,14 @@ public:
 	void SetLens(float fov, float nearPlane, float farPlane, int width, int height);
 	void Pitch(float angle);
 	void Yaw(float angle);
-	const CameraData& GetCamData();
 	void MoveForward(float dt, float speed = 1.0f);
 	void MoveBackward(float dt, float speed = 1.0f);
 	void MoveUp(float dt, float speed = 1.0f);
 	void MoveDown(float dt, float speed = 1.0f);
 	void StrafeLeft(float dt, float speed = 1.0f);
 	void StrafeRight(float dt, float speed = 1.0f);
+
+	const CameraData& GetCamData() { return camData; }
 
 	Vector3 up;
 	Vector3 right;

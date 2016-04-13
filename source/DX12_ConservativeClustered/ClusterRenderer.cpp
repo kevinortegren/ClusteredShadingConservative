@@ -1,7 +1,9 @@
 #include "ClusterRenderer.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include "d3dx12.h"
+
+using namespace Log;
 
 ClusterRenderer::ClusterRenderer()
 	: m_numPoints(0)
@@ -58,7 +60,7 @@ ClusterRenderer::ClusterRenderer()
 
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODesc, IID_PPV_ARGS(&m_PSO));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSO");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSO");
 
 	m_lineBufferCPUHandle = shared_context.gfx_device->GetDescHeapCBV_SRV()->GetNewCPUHandle();
 	m_lineBufferGPUHandle = shared_context.gfx_device->GetDescHeapCBV_SRV()->GetGPUHandleAtHead();
@@ -197,27 +199,3 @@ void ClusterRenderer::UploadClusters()
 	memcpy(m_lineMem, &m_lineBatch[0], m_numPoints*sizeof(Vector3));
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE ClusterRenderer::GetCPUHandle()
-{
-	return m_lineBufferCPUHandle;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE ClusterRenderer::GetGPUHandle()
-{
-	return m_lineBufferGPUHandle;
-}
-
-ID3D12RootSignature* ClusterRenderer::GetRootSig()
-{
-	return m_rootSig;
-}
-
-ID3D12PipelineState* ClusterRenderer::GetPSO()
-{
-	return m_PSO;
-}
-
-uint32 ClusterRenderer::GetNumPoints()
-{
-	return m_numPoints;
-}

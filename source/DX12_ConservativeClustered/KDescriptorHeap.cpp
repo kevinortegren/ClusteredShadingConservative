@@ -1,8 +1,10 @@
 #include "KDescriptorHeap.h"
 #include "KGraphicsDevice.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include "d3dx12.h"
+
+using namespace Log;
 
 KDescriptorHeap::KDescriptorHeap()
 	: m_Size(0), m_DescIncrSize(0), m_Capacity(0)
@@ -27,7 +29,7 @@ HRESULT KDescriptorHeap::CreateDescriptorHeap(uint32 num_descriptors, D3D12_DESC
 	
 	hr = shared_context.gfx_device->GetDevice()->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&m_DescriptorHeap));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create descriptor heap");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create descriptor heap");
 
 	//Store the increment size for this heap
 	m_DescIncrSize = shared_context.gfx_device->GetDevice()->GetDescriptorHandleIncrementSize(descriptor_type);
@@ -47,34 +49,14 @@ CD3DX12_CPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetNewCPUHandle()
 	m_CPUHead.Offset(1, m_DescIncrSize);
 	++m_Size;
 	if(m_Size > m_Capacity)
-		shared_context.log->LogText(LogLevel::WARNING, "NO MORE FREE HANDLES");
+		PRINT(LogLevel::WARNING, "NO MORE FREE HANDLES");
 	return retHandle;
-}
-
-CD3DX12_GPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetGPUHandleAtHead()
-{
-	return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), m_Size - 1, m_DescIncrSize);
-}
-
-CD3DX12_CPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetCPUHandleAtHead()
-{
-	return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), m_Size - 1, m_DescIncrSize);
-}
-
-CD3DX12_CPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetCPUHandleAtStart()
-{
-	return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-}
-
-CD3DX12_GPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetGPUHandleAtStart()
-{
-	return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetCPUHandleAt(int32 index)
 {
 	if ((uint32)index >= m_Size)
-		shared_context.log->LogText(LogLevel::WARNING, "GETTING CPU DESCRIPTOR HANDLE OUT OF RANGE");
+		PRINT(LogLevel::WARNING, "GETTING CPU DESCRIPTOR HANDLE OUT OF RANGE");
 
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, m_DescIncrSize);
 }
@@ -82,28 +64,9 @@ CD3DX12_CPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetCPUHandleAt(int32 index)
 CD3DX12_GPU_DESCRIPTOR_HANDLE KDescriptorHeap::GetGPUHandleAt(int32 index)
 {
 	if((uint32)index >= m_Size)
-		shared_context.log->LogText(LogLevel::WARNING, "GETTING GPU DESCRIPTOR HANDLE OUT OF RANGE");
+		PRINT(LogLevel::WARNING, "GETTING GPU DESCRIPTOR HANDLE OUT OF RANGE");
 
 	return CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), index, m_DescIncrSize);
 }
 
-uint32 KDescriptorHeap::GetIncrSize()
-{
-	return m_DescIncrSize;
-}
-
-uint32 KDescriptorHeap::GetCapacity()
-{
-	return m_Capacity;
-}
-
-uint32 KDescriptorHeap::GetSize()
-{
-	return m_Size;
-}
-
-ID3D12DescriptorHeap* KDescriptorHeap::GetHeap()
-{
-	return m_DescriptorHeap;
-}
 

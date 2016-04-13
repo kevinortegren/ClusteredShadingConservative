@@ -85,25 +85,28 @@ public:
 	void WaitForGPU();
 
 	//Getters
-	int32 GetWindowWidth();
-	int32 GetWindowHeight();
-	ID3D12Device* GetDevice();
-	KDescriptorHeap* GetDescHeapRTV();
-	KDescriptorHeap* GetDescHeapCBV_SRV();
-	KDescriptorHeap* GetDescHeapDSV();
-	KDescriptorHeap* GetDescHeapSampler();
-	ID3D12CommandQueue*	GetCommandQueue();
-	ID3D12CommandAllocator*	GetCommandAllocator();
+	KDescriptorHeap* KGraphicsDevice::GetDescHeapRTV()					{ return &m_DescHeapRTV; }
+	KDescriptorHeap* KGraphicsDevice::GetDescHeapCBV_SRV()				{ return &m_DescHeapCBV_SRV; }
+	KDescriptorHeap* KGraphicsDevice::GetDescHeapDSV()					{ return &m_DescHeapDSV; }
+	KDescriptorHeap* KGraphicsDevice::GetDescHeapSampler()				{ return &m_DescHeapSampler; }
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetRTDescHandle();
-	ID3D12Resource*	GetRTResource();
+	ID3D12CommandQueue* KGraphicsDevice::GetCommandQueue()				{ return m_CommandQueue; }
+	ID3D12CommandAllocator* KGraphicsDevice::GetCommandAllocator()		{ return m_CommandAllocator;}
 
-	SDL_Window* GetMainWindow();
+	D3D12_CPU_DESCRIPTOR_HANDLE KGraphicsDevice::GetRTDescHandle()		{ return m_RTDescriptor[m_SwapIndex]; }
 
-	D3D12_VIEWPORT GetViewPort();
-	D3D12_RECT GetScissorRect();
+	ID3D12Resource* KGraphicsDevice::GetRTResource()					{ return m_RenderTarget[m_SwapIndex]; }
 
-	int32 GetSwapIndex();
+	SDL_Window* KGraphicsDevice::GetMainWindow()						{ return m_MainWindow; }
+
+	D3D12_VIEWPORT KGraphicsDevice::GetViewPort()						{ return m_ViewPort; }
+	D3D12_RECT KGraphicsDevice::GetScissorRect()						{ return m_ScissorRect; }
+
+	int32 KGraphicsDevice::GetWindowWidth()								{ return m_WindowWidth; }
+	int32 KGraphicsDevice::GetWindowHeight()							{ return m_WindowHeight; }
+
+	ID3D12Device* KGraphicsDevice::GetDevice()							{ return m_Device; }
+	int32 KGraphicsDevice::GetSwapIndex()								{ return m_SwapIndex; }
 
 	void SetTimeStampQuery(uint32 timestamp_query, ID3D12GraphicsCommandList* gfx_command_list);
 	uint64 QueryTimeStamp(uint32 timestamp_query);

@@ -68,30 +68,6 @@ void KRenderTarget::CreateRenderTarget(DXGI_FORMAT tex_format, int32 width, int3
 	shared_context.gfx_device->GetDevice()->CreateShaderResourceView(m_RTResource, &SRVDesc, m_SRVCPUHandle);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE KRenderTarget::GetRTVCPUHandle()
-{
-	return m_RTVCPUHandle;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE KRenderTarget::GetRTVGPUHandle()
-{
-	return m_RTVGPUHandle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE KRenderTarget::GetSRVCPUHandle()
-{
-	return m_SRVCPUHandle;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE KRenderTarget::GetSRVGPUHandle()
-{
-	return m_SRVGPUHandle;
-}
-
-ID3D12Resource* KRenderTarget::GetResource()
-{
-	return m_RTResource;
-}
 
 void KRenderTarget::CreateRenderTargetArray(uint32 num_slices, DXGI_FORMAT tex_format, int32 width, int32 height, const float clear_color[4] /*= 0*/)
 {

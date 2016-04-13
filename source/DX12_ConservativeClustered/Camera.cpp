@@ -35,11 +35,6 @@ void Camera::Yaw(float angle)
 	right = Vector3::Transform(right, rot);
 }
 
-const CameraData& Camera::GetCamData()
-{
-	return camData;
-}
-
 void Camera::MoveForward(float dt, float speed)
 {
 	position += camSpeed * dt * facing * speed;

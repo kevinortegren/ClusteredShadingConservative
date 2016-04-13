@@ -2,8 +2,10 @@
 #include "Constants.h"
 #include <vector>
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include "d3dx12.h"
+
+using namespace Log;
 
 LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_command_list)
 {
@@ -69,23 +71,23 @@ LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_comm
 
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOPoint));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOPoint");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOPoint");
 
 	//Reuse pso desc
 	PSODescFront.VS = { reinterpret_cast<BYTE*>(vertexShaderSpot.GetBufferPointer()), vertexShaderSpot.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOSpot));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpot");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpot");
 
 	PSODescFront.PS = { reinterpret_cast<BYTE*>(pixelShaderFrontLinear.GetBufferPointer()), pixelShaderFrontLinear.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOSpotLinear));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpotLinear");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpotLinear");
 
 		PSODescFront.VS = { reinterpret_cast<BYTE*>(vertexShader.GetBufferPointer()), vertexShader.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOPointLinear));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOPointLinear");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOPointLinear");
 
 
 	//Create old pipeline shaders
@@ -94,22 +96,22 @@ LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_comm
 	PSODescFront.PS = { reinterpret_cast<BYTE*>(oldpixelShaderFront.GetBufferPointer()), oldpixelShaderFront.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOPointOld));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOPointOld");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOPointOld");
 
 	PSODescFront.VS = { reinterpret_cast<BYTE*>(vertexShaderSpot.GetBufferPointer()), vertexShaderSpot.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOSpotOld));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpotOld");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpotOld");
 
 	PSODescFront.PS = { reinterpret_cast<BYTE*>(oldpixelShaderFrontLinear.GetBufferPointer()), oldpixelShaderFrontLinear.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOSpotOldLinear));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpotLinearOld");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOSpotLinearOld");
 
 	PSODescFront.VS = { reinterpret_cast<BYTE*>(vertexShader.GetBufferPointer()), vertexShader.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODescFront, IID_PPV_ARGS(&m_PSOPointOldLinear));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOPointLinearOld");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOPointLinearOld");
 
 	
 
@@ -134,7 +136,7 @@ LightAssignmentRaster::LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_comm
 
 	hr = shared_context.gfx_device->GetDevice()->CreateComputePipelineState(&computePSODesc, IID_PPV_ARGS(&m_ComputePSO));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_ComputePSO");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_ComputePSO");
 
 
 	//Set up Linked Light List buffers.
@@ -407,85 +409,9 @@ LightAssignmentRaster::~LightAssignmentRaster()
 	m_UAVCounterReadBackRes[1]->Release();
 }
 
-ID3D12PipelineState* LightAssignmentRaster::GetPSOPoint()
-{
-	return m_PSOPoint;
-}
-
-ID3D12RootSignature* LightAssignmentRaster::GetRootSig()
-{
-	return m_RootSignature;
-}
-
-KRenderTarget* LightAssignmentRaster::GetColorRT(int32 swap_index)
-{
-	return &m_pointlightShellTarget[swap_index];
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetComputePSO()
-{
-	return m_ComputePSO;
-}
-
-ID3D12RootSignature* LightAssignmentRaster::GetComputeRootSig()
-{
-	return m_ComputeRootSig;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetSobUAVCPUHandle()
-{
-	return m_SobUAVHandle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetLLLUAVCPUHandle()
-{
-	return m_LLLUAVHandle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetSobSRVCPUHandle()
-{
-	return m_SobSRVHandle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetLLLSRVCPUHandle()
-{
-	return m_LLLSRVHandle;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetSobUAVGPUHandle()
-{
-	return m_SobUAVHandleGPU;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetLLLUAVGPUHandle()
-{
-	return m_LLLUAVHandleGPU;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetSobSRVGPUHandle()
-{
-	return m_SobSRVHandleGPU;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE LightAssignmentRaster::GetLLLSRVGPUHandle()
-{
-	return m_LLLSRVHandleGPU;
-}
-
-ID3D12Resource* LightAssignmentRaster::GetStartOffsetResource()
-{
-	return m_StartOffsetBuffer;
-}
-
-ID3D12Resource* LightAssignmentRaster::GetLinkedLightListResource()
-{
-	return m_LinkedIndexList;
-}
-
-ID3D12Resource* LightAssignmentRaster::GetUAVCounterResource()
-{
-	return m_StartOffsetBufferCounter;
-}
+ID3D12Resource* LightAssignmentRaster::GetStartOffsetReadResource()		{ return m_SobReadBackRes[!shared_context.gfx_device->GetSwapIndex()]; }
+ID3D12Resource* LightAssignmentRaster::GetLinkedLightListReadResource() { return m_LLLReadBackRes[!shared_context.gfx_device->GetSwapIndex()]; }
+ID3D12Resource* LightAssignmentRaster::GetUAVCounterReadResource()		{ return m_UAVCounterReadBackRes[!shared_context.gfx_device->GetSwapIndex()]; }
 
 void LightAssignmentRaster::ClearUAVs(ID3D12GraphicsCommandList* gfx_command_list)
 {
@@ -504,59 +430,4 @@ void LightAssignmentRaster::ReadBackDebugData(ID3D12GraphicsCommandList* gfx_com
 	gfx_command_list->CopyResource(m_UAVCounterReadBackRes[swap_index], m_StartOffsetBufferCounter);
 	gfx_command_list->CopyResource(m_LLLReadBackRes[swap_index], m_LinkedIndexList);
 	shared_context.gfx_device->TransitionResources(3, gfx_command_list, resources, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOSpot()
-{
-	return m_PSOSpot;
-}
-
-KRenderTarget* LightAssignmentRaster::GetSpotRT(int32 swap_index)
-{
-	return &m_spotlightShellTarget[swap_index];
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOSpotOld()
-{
-	return m_PSOSpotOld;
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOPointOld()
-{
-	return m_PSOPointOld;
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOSpotLinear()
-{
-	return m_PSOSpotLinear;
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOPointLinear()
-{
-	return m_PSOPointLinear;
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOPointLinearOld()
-{
-	return m_PSOPointOldLinear;
-}
-
-ID3D12PipelineState* LightAssignmentRaster::GetPSOSpotLinearOld()
-{
-	return m_PSOSpotOldLinear;
-}
-
-ID3D12Resource* LightAssignmentRaster::GetStartOffsetReadResource()
-{
-	return m_SobReadBackRes[!shared_context.gfx_device->GetSwapIndex()];
-}
-
-ID3D12Resource* LightAssignmentRaster::GetLinkedLightListReadResource()
-{
-	return m_LLLReadBackRes[!shared_context.gfx_device->GetSwapIndex()];
-}
-
-ID3D12Resource* LightAssignmentRaster::GetUAVCounterReadResource()
-{
-	return m_UAVCounterReadBackRes[!shared_context.gfx_device->GetSwapIndex()];
 }

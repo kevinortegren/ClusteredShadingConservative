@@ -1,7 +1,9 @@
 #include "KGraphicsDevice.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include "d3dx12.h"
+
+using namespace Log;
 
 KGraphicsDevice::KGraphicsDevice()
 	: m_SwapIndex(0)
@@ -37,7 +39,7 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 
 	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
 	{
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "SDL_Init failed: %s", SDL_GetError());
+		PRINT(LogLevel::FATAL_ERROR, "SDL_Init failed: %s", SDL_GetError());
 	}
 
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
@@ -51,7 +53,7 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 	if (SDL_GetWindowWMInfo(m_MainWindow, &info))
 		handle = info.info.win.window;
 	else
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to get WMInfo: %s", SDL_GetError());
+		PRINT(LogLevel::FATAL_ERROR, "Failed to get WMInfo: %s", SDL_GetError());
 
 	uint32 flags = 0;
 
@@ -78,23 +80,23 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 
 	hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_Device));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create D3D12 Device");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create D3D12 Device");
 
 	D3D12_FEATURE_DATA_D3D12_OPTIONS opts;
 	hr = m_Device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &opts, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to CheckFeatureSupport");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to CheckFeatureSupport");
 	
 	//Print hardware opts
 	PrintHWopts(opts);
 
 	uint32 node_count = m_Device->GetNodeCount();
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Device node count: %d", node_count);
+	PRINT(LogLevel::DEBUG_PRINT, "Device node count: %d", node_count);
 
 	IDXGIFactory* dxgifactory;
 	hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgifactory));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create IDXGIFactory");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create IDXGIFactory");
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc;
 	ZeroMemory(&queueDesc, sizeof(queueDesc));
@@ -102,11 +104,11 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	hr = m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CommandQueue));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create Command Queue");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create Command Queue");
 
 	hr = dxgifactory->CreateSwapChain(m_CommandQueue, &descSwapChain, &m_SwapChain);
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create SwapChain");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create SwapChain");
 
 	
 	dxgifactory->Release();
@@ -123,7 +125,7 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 
 	hr = m_CommandQueue->GetTimestampFrequency(&m_Freq);
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed GetTimestampFrequency");
+		PRINT(LogLevel::FATAL_ERROR, "Failed GetTimestampFrequency");
 
 	m_ViewPort = { 0.0f, 0.0f, (float)m_WindowWidth, (float)m_WindowHeight, 0.0f, 1.0f };
 	m_ScissorRect = { 0, 0, m_WindowWidth, m_WindowHeight };
@@ -148,7 +150,7 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 
 	hr = m_Device->CreateQueryHeap(&desc, IID_PPV_ARGS(&m_TimeStampQueryHeap));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to CreateQueryHeap");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to CreateQueryHeap");
 
 	m_Device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK, 0, 0),
@@ -158,7 +160,7 @@ HRESULT KGraphicsDevice::Init(int32 window_width, int32 window_height)
 		nullptr,
 		IID_PPV_ARGS(&m_TimeStampQueryReadBackRes));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to CreateCommittedResource for query readback buffer");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to CreateCommittedResource for query readback buffer");
 
 	//Create fence
 	m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence));
@@ -214,81 +216,6 @@ void KGraphicsDevice::WaitForGPU()
 		m_Fence->SetEventOnCompletion(fence, m_HandleEvent);
 		WaitForSingleObject(m_HandleEvent, INFINITE);
 	}
-}
-
-KDescriptorHeap* KGraphicsDevice::GetDescHeapRTV()
-{
-	return &m_DescHeapRTV;
-}
-
-KDescriptorHeap* KGraphicsDevice::GetDescHeapCBV_SRV()
-{
-	return &m_DescHeapCBV_SRV;
-}
-
-KDescriptorHeap* KGraphicsDevice::GetDescHeapDSV()
-{
-	return &m_DescHeapDSV;
-}
-
-KDescriptorHeap* KGraphicsDevice::GetDescHeapSampler()
-{
-	return &m_DescHeapSampler;
-}
-
-ID3D12CommandQueue* KGraphicsDevice::GetCommandQueue()
-{
-	return m_CommandQueue;
-}
-
-ID3D12CommandAllocator* KGraphicsDevice::GetCommandAllocator()
-{
-	return m_CommandAllocator;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE KGraphicsDevice::GetRTDescHandle()
-{
-	return m_RTDescriptor[m_SwapIndex];
-}
-
-ID3D12Resource* KGraphicsDevice::GetRTResource()
-{
-	return m_RenderTarget[m_SwapIndex];
-}
-
-SDL_Window* KGraphicsDevice::GetMainWindow()
-{
-	return m_MainWindow;
-}
-
-D3D12_VIEWPORT KGraphicsDevice::GetViewPort()
-{
-	return m_ViewPort;
-}
-
-D3D12_RECT KGraphicsDevice::GetScissorRect()
-{
-	return m_ScissorRect;
-}
-
-int32 KGraphicsDevice::GetWindowWidth()
-{
-	return m_WindowWidth;
-}
-
-int32 KGraphicsDevice::GetWindowHeight()
-{
-	return m_WindowHeight;
-}
-
-ID3D12Device* KGraphicsDevice::GetDevice()
-{
-	return m_Device;
-}
-
-int32 KGraphicsDevice::GetSwapIndex()
-{
-	return m_SwapIndex;
 }
 
 void KGraphicsDevice::SetTimeStampQuery(uint32 timestamp_query, ID3D12GraphicsCommandList* gfx_command_list)
@@ -367,7 +294,7 @@ void KGraphicsDevice::CreateConstantBufferView(KBuffer* buffer, uint32 num_eleme
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc;
 	cbv_desc.BufferLocation = buffer->resource->GetGPUVirtualAddress();
-    cbv_desc.SizeInBytes = size_in_bytes;
+	cbv_desc.SizeInBytes = size_in_bytes;
 
 	buffer->cbv.cpu_handle = m_DescHeapCBV_SRV.GetNewCPUHandle();
 	buffer->cbv.gpu_handle = m_DescHeapCBV_SRV.GetGPUHandleAtHead();
@@ -379,27 +306,27 @@ void KGraphicsDevice::PrintHWopts(D3D12_FEATURE_DATA_D3D12_OPTIONS& opts)
 {
 	//Double Precision Float Shader Ops
 	if (opts.DoublePrecisionFloatShaderOps)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "DoublePrecisionFloatShaderOps: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "DoublePrecisionFloatShaderOps: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "DoublePrecisionFloatShaderOps: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "DoublePrecisionFloatShaderOps: FALSE");
 
 	//Output Merger Logic Op
 	if (opts.OutputMergerLogicOp)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "OutputMergerLogicOp: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "OutputMergerLogicOp: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "OutputMergerLogicOp: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "OutputMergerLogicOp: FALSE");
 
 	//Min Precision Support
 	switch (opts.MinPrecisionSupport)
 	{
 	case D3D12_SHADER_MIN_PRECISION_SUPPORT_NONE:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "MinPrecisionSupport: D3D12_SHADER_MIN_PRECISION_NONE");
+		PRINT(LogLevel::HELP_PRINT, "MinPrecisionSupport: D3D12_SHADER_MIN_PRECISION_NONE");
 		break;
 	case D3D12_SHADER_MIN_PRECISION_SUPPORT_10_BIT:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "MinPrecisionSupport: D3D12_SHADER_MIN_PRECISION_10_BIT");
+		PRINT(LogLevel::HELP_PRINT, "MinPrecisionSupport: D3D12_SHADER_MIN_PRECISION_10_BIT");
 		break;
 	case D3D12_SHADER_MIN_PRECISION_SUPPORT_16_BIT:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "MinPrecisionSupport: D3D12_SHADER_MIN_PRECISION_16_BIT");
+		PRINT(LogLevel::HELP_PRINT, "MinPrecisionSupport: D3D12_SHADER_MIN_PRECISION_16_BIT");
 		break;
 	default:
 		break;
@@ -409,16 +336,16 @@ void KGraphicsDevice::PrintHWopts(D3D12_FEATURE_DATA_D3D12_OPTIONS& opts)
 	switch (opts.TiledResourcesTier)
 	{
 	case D3D12_TILED_RESOURCES_TIER_NOT_SUPPORTED:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_NOT_SUPPORTED");
+		PRINT(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_NOT_SUPPORTED");
 		break;
 	case D3D12_TILED_RESOURCES_TIER_1:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_TIER_1");
+		PRINT(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_TIER_1");
 		break;
 	case D3D12_TILED_RESOURCES_TIER_2:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_TIER_2");
+		PRINT(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_TIER_2");
 		break;
 	case D3D12_TILED_RESOURCES_TIER_3:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_TIER_3");
+		PRINT(LogLevel::HELP_PRINT, "TiledResourcesTier: D3D12_TILED_RESOURCES_TIER_3");
 		break;
 	default:
 		break;
@@ -428,13 +355,13 @@ void KGraphicsDevice::PrintHWopts(D3D12_FEATURE_DATA_D3D12_OPTIONS& opts)
 	switch (opts.ResourceBindingTier)
 	{
 	case D3D12_RESOURCE_BINDING_TIER_1:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ResourceBindingTier: D3D12_RESOURCE_BINDING_TIER_1");
+		PRINT(LogLevel::HELP_PRINT, "ResourceBindingTier: D3D12_RESOURCE_BINDING_TIER_1");
 		break;
 	case D3D12_RESOURCE_BINDING_TIER_2:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ResourceBindingTier: D3D12_RESOURCE_BINDING_TIER_2");
+		PRINT(LogLevel::HELP_PRINT, "ResourceBindingTier: D3D12_RESOURCE_BINDING_TIER_2");
 		break;
 	case D3D12_RESOURCE_BINDING_TIER_3:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ResourceBindingTier: D3D12_RESOURCE_BINDING_TIER_3");
+		PRINT(LogLevel::HELP_PRINT, "ResourceBindingTier: D3D12_RESOURCE_BINDING_TIER_3");
 		break;
 	default:
 		break;
@@ -442,65 +369,65 @@ void KGraphicsDevice::PrintHWopts(D3D12_FEATURE_DATA_D3D12_OPTIONS& opts)
 
 	//PS Specified Stencil Ref Supported
 	if (opts.PSSpecifiedStencilRefSupported)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "PSSpecifiedStencilRefSupported: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "PSSpecifiedStencilRefSupported: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "PSSpecifiedStencilRefSupported: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "PSSpecifiedStencilRefSupported: FALSE");
 
 	//Typed UAV Load Additional Formats
 	if (opts.TypedUAVLoadAdditionalFormats)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "TypedUAVLoadAdditionalFormats: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "TypedUAVLoadAdditionalFormats: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "TypedUAVLoadAdditionalFormats: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "TypedUAVLoadAdditionalFormats: FALSE");
 
 	//ROVs Supported
 	if (opts.ROVsSupported)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ROVsSupported: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "ROVsSupported: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ROVsSupported: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "ROVsSupported: FALSE");
 
 	//Conservative Rasterization Tier
 	switch (opts.ConservativeRasterizationTier)
 	{
 	case D3D12_CONSERVATIVE_RASTERIZATION_TIER_NOT_SUPPORTED:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED");
+		PRINT(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED");
 		break;
 	case D3D12_CONSERVATIVE_RASTERIZATION_TIER_1:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_TIER_1");
+		PRINT(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_TIER_1");
 		break;
 	case D3D12_CONSERVATIVE_RASTERIZATION_TIER_2:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_TIER_2");
+		PRINT(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_TIER_2");
 		break;
 	case D3D12_CONSERVATIVE_RASTERIZATION_TIER_3:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_TIER_3");
+		PRINT(LogLevel::HELP_PRINT, "ConservativeRasterizationTier: D3D12_CONSERVATIVE_RASTERIZATION_TIER_3");
 		break;
 	default:
 		break;
 	}
 
 	//Max GPU Virtual Address Bits Per Resource
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "MaxGPUVirtualAddressBitsPerResource: %d", opts.MaxGPUVirtualAddressBitsPerResource);
+	PRINT(LogLevel::HELP_PRINT, "MaxGPUVirtualAddressBitsPerResource: %d", opts.MaxGPUVirtualAddressBitsPerResource);
 
 	//Standard Swizzle 64KB Supported
 	if (opts.StandardSwizzle64KBSupported)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "StandardSwizzle64KBSupported: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "StandardSwizzle64KBSupported: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "StandardSwizzle64KBSupported: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "StandardSwizzle64KBSupported: FALSE");
 
 
 	//Cross Node Sharing Tier
 	switch (opts.CrossNodeSharingTier)
 	{
 	case D3D12_CROSS_NODE_SHARING_TIER_NOT_SUPPORTED:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_NOT_SUPPORTED");
+		PRINT(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_NOT_SUPPORTED");
 		break;
 	case D3D12_CROSS_NODE_SHARING_TIER_1_EMULATED:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_TIER_1_EMULATED");
+		PRINT(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_TIER_1_EMULATED");
 		break;
 	case D3D12_CROSS_NODE_SHARING_TIER_1:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_TIER_1");
+		PRINT(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_TIER_1");
 		break;
 	case D3D12_CROSS_NODE_SHARING_TIER_2:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_TIER_2");
+		PRINT(LogLevel::HELP_PRINT, "CrossNodeSharingTier: D3D12_CROSS_NODE_SHARING_TIER_2");
 		break;
 	default:
 		break;
@@ -508,24 +435,24 @@ void KGraphicsDevice::PrintHWopts(D3D12_FEATURE_DATA_D3D12_OPTIONS& opts)
 
 	//Cross Adapter Row Major Texture Supported
 	if (opts.CrossAdapterRowMajorTextureSupported)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "CrossAdapterRowMajorTextureSupported: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "CrossAdapterRowMajorTextureSupported: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "CrossAdapterRowMajorTextureSupported: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "CrossAdapterRowMajorTextureSupported: FALSE");
 
 	//Cross Adapter Row Major Texture Supported
 	if (opts.VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation)
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation: TRUE");
+		PRINT(LogLevel::HELP_PRINT, "VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation: TRUE");
 	else
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation: FALSE");
+		PRINT(LogLevel::HELP_PRINT, "VPAndRTArrayIndexFromAnyShaderFeedingRasterizerSupportedWithoutGSEmulation: FALSE");
 
 	//Resource heap tier
 	switch (opts.ResourceHeapTier)
 	{
 	case D3D12_RESOURCE_HEAP_TIER_1:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ResourceHeapTier: D3D12_RESOURCE_HEAP_TIER_1");
+		PRINT(LogLevel::HELP_PRINT, "ResourceHeapTier: D3D12_RESOURCE_HEAP_TIER_1");
 		break;
 	case D3D12_RESOURCE_HEAP_TIER_2:
-		shared_context.log->LogText(LogLevel::HELP_PRINT, "ResourceHeapTier: D3D12_RESOURCE_HEAP_TIER_2");
+		PRINT(LogLevel::HELP_PRINT, "ResourceHeapTier: D3D12_RESOURCE_HEAP_TIER_2");
 		break;
 	default:
 		break;
@@ -612,7 +539,7 @@ ID3D12RootSignature* KGraphicsDevice::CreateRootSignature(uint32 num_ranges, Roo
 	if (FAILED(hr))
 	{
 		if (error_blob)
-			shared_context.log->LogText(LogLevel::FATAL_ERROR, (char*)error_blob->GetBufferPointer());
+			PRINT(LogLevel::FATAL_ERROR, (char*)error_blob->GetBufferPointer());
 	}
 
 	ID3D12RootSignature* root_signature;

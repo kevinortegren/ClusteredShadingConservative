@@ -13,8 +13,8 @@ public:
 	~LightManager();
 	void Update(float dt);
 
-	KShaderResourceView GetPointLightSRV();
-	KShaderResourceView GetSpotLightSRV();
+	KShaderResourceView GetPointLightSRV()		{ return m_pointLightBuffer.srv; }
+	KShaderResourceView GetSpotLightSRV()		{ return m_spotLightBuffer.srv; }
 
 private:
 

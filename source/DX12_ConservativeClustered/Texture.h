@@ -8,8 +8,10 @@ public:
 	~Texture();
 
 	void CreateTextureFromFile(ID3D12GraphicsCommandList* gfx_command_list, const char* file);
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle();
 	void DeleteUploadTexture();
+
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle() { return m_GPUhandle; }
+
 private:
 	ID3D12Resource* m_texture;
 	ID3D12Resource* m_uploadTexture;

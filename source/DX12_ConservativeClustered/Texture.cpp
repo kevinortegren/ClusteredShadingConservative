@@ -1,9 +1,11 @@
 #include "Texture.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
 #include <fstream>
 #include <iostream>
 #include "DDSTextureLoader.h"
+
+using namespace Log;
 
 Texture::Texture()
 	: m_texture(nullptr), m_uploadTexture(nullptr)
@@ -22,7 +24,7 @@ void Texture::CreateTextureFromFile(ID3D12GraphicsCommandList* gfx_command_list,
 	std::streampos size;
 	uint8* tex_data;
 
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Loading texture: %s", file);
+	PRINT(LogLevel::DEBUG_PRINT, "Loading texture: %s", file);
 
 	std::ifstream file_stream(file, std::ios::in | std::ios::binary | std::ios::ate);
 	if (file_stream.is_open())
@@ -38,19 +40,14 @@ void Texture::CreateTextureFromFile(ID3D12GraphicsCommandList* gfx_command_list,
 		if(m_texture != nullptr && m_uploadTexture != nullptr)
 		{
 			m_GPUhandle = shared_context.gfx_device->GetDescHeapCBV_SRV()->GetGPUHandleAtHead();
-			shared_context.log->LogText(LogLevel::SUCCESS, "Texture loaded: %s", file);
+			PRINT(LogLevel::SUCCESS, "Texture loaded: %s", file);
 		}
 		delete[] tex_data;
 	}
 	else 
 	{
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Texture load failed: %s", file);
+		PRINT(LogLevel::FATAL_ERROR, "Texture load failed: %s", file);
 	}
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetGPUDescriptorHandle()
-{
-	return m_GPUhandle;
 }
 
 void Texture::DeleteUploadTexture()

@@ -305,16 +305,6 @@ void LightManager::UpdateSpotLights(float dt)
 	memcpy(m_spotLightBuffer.mem, &m_spotLights[0], Constants::NR_SPOTLIGHTS * sizeof(SpotLight));
 }
 
-KShaderResourceView LightManager::GetPointLightSRV()
-{
-	return m_pointLightBuffer.srv;
-}
-
-KShaderResourceView LightManager::GetSpotLightSRV()
-{
-	return m_spotLightBuffer.srv;
-}
-
 void LightManager::Update(float dt)
 {
 	UpdatePointLights(dt);

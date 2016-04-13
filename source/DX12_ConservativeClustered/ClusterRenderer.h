@@ -18,13 +18,11 @@ public:
 	void AddCluster(uint32 x, uint32 y, uint32 z);
 	void UploadClusters();
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle();
-
-	ID3D12RootSignature* GetRootSig();
-	ID3D12PipelineState* GetPSO();
-
-	uint32 GetNumPoints();
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle()	{ return m_lineBufferCPUHandle; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle()	{ return m_lineBufferGPUHandle; }
+	ID3D12RootSignature* GetRootSig()			{ return m_rootSig; }
+	ID3D12PipelineState* GetPSO()				{ return m_PSO; }
+	uint32 GetNumPoints()						{ return m_numPoints; }
 
 private:
 

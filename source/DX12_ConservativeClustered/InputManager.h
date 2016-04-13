@@ -68,14 +68,15 @@ public:
 	void Reset();
 
 	KeyState GetKeyState(SDL_Scancode key);
-	KeyState GetKeyState(MouseButton button);
-	KeyState GetKeyState(GamepadButton button);
 
-	Vector2 GetGlobalMousePos();
-	Vector2 GetDeltaMousPos();
+	KeyState GetKeyState(MouseButton button)			{ return GetKeyState((SDL_Scancode)button); }
+	KeyState GetKeyState(GamepadButton button)			{ return GetKeyState((SDL_Scancode)button); }
 
-	ThumbSticks GetThumbSticks();
-	Triggers GetTriggers();
+	DirectX::SimpleMath::Vector2 GetGlobalMousePos()	{ return m_globalMousePos; }
+	DirectX::SimpleMath::Vector2 GetDeltaMousPos()		{ return m_deltaMousePos; }
+
+	ThumbSticks GetThumbSticks()						{ return m_thumbSticks; }
+	Triggers GetTriggers()								{ return m_triggers; }
 
 private:
 	std::vector<KeyState> m_keyState;

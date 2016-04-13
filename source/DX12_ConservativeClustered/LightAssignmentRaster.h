@@ -9,45 +9,44 @@ public:
 	LightAssignmentRaster(ID3D12GraphicsCommandList* gfx_command_list);
 	~LightAssignmentRaster();
 
-	ID3D12PipelineState* GetPSOSpot();
-	ID3D12PipelineState* GetPSOPoint();
-	ID3D12PipelineState* GetPSOSpotLinear();
-	ID3D12PipelineState* GetPSOPointLinear();
-	ID3D12PipelineState* GetPSOSpotOld();
-	ID3D12PipelineState* GetPSOPointOld();
-	ID3D12PipelineState* GetPSOSpotLinearOld();
-	ID3D12PipelineState* GetPSOPointLinearOld();
-	ID3D12RootSignature* GetRootSig();
+	KRenderTarget* GetSpotRT(int32 swap_index) {	return &m_spotlightShellTarget[swap_index];}
 
-	ID3D12PipelineState* GetComputePSO();
-	ID3D12RootSignature* GetComputeRootSig();
+	ID3D12PipelineState* GetPSOSpot()					{ return m_PSOSpot; }
+	ID3D12PipelineState* GetPSOSpotOld()				{ return m_PSOSpotOld; }
+	ID3D12PipelineState* GetPSOPointOld()				{ return m_PSOPointOld; }
+	ID3D12PipelineState* GetPSOSpotLinear()				{ return m_PSOSpotLinear; }
+	ID3D12PipelineState* GetPSOPointLinear()			{ return m_PSOPointLinear; }
+	ID3D12PipelineState* GetPSOPointLinearOld()			{ return m_PSOPointOldLinear; }
+	ID3D12PipelineState* GetPSOSpotLinearOld()			{ return m_PSOSpotOldLinear; }
+	ID3D12PipelineState* GetComputePSO()				{ return m_ComputePSO; }
+	ID3D12PipelineState* GetPSOPoint()					{ return m_PSOPoint; }
 
-	KRenderTarget* GetColorRT(int32 swap_index);
-	KRenderTarget* GetSpotRT(int32 swap_index);
+	ID3D12RootSignature* GetRootSig()					{ return m_RootSignature; }
+	ID3D12RootSignature* GetComputeRootSig()			{ return m_ComputeRootSig; }
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSobUAVCPUHandle();
-	D3D12_CPU_DESCRIPTOR_HANDLE GetLLLUAVCPUHandle();
+	KRenderTarget* GetColorRT(int32 swap_index)			{ return &m_pointlightShellTarget[swap_index]; }
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetSobSRVCPUHandle();
-	D3D12_CPU_DESCRIPTOR_HANDLE GetLLLSRVCPUHandle();
+	D3D12_CPU_DESCRIPTOR_HANDLE GetSobUAVCPUHandle()	{ return m_SobUAVHandle; }														
+	D3D12_CPU_DESCRIPTOR_HANDLE GetLLLUAVCPUHandle()	{ return m_LLLUAVHandle; }														
+	D3D12_CPU_DESCRIPTOR_HANDLE GetSobSRVCPUHandle()	{ return m_SobSRVHandle; }														
+	D3D12_CPU_DESCRIPTOR_HANDLE GetLLLSRVCPUHandle()	{ return m_LLLSRVHandle; }	
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSobUAVGPUHandle();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetLLLUAVGPUHandle();
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSobUAVGPUHandle()	{ return m_SobUAVHandleGPU; }														
+	D3D12_GPU_DESCRIPTOR_HANDLE GetLLLUAVGPUHandle()	{ return m_LLLUAVHandleGPU; }														
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSobSRVGPUHandle()	{ return m_SobSRVHandleGPU; }												
+	D3D12_GPU_DESCRIPTOR_HANDLE GetLLLSRVGPUHandle()	{ return m_LLLSRVHandleGPU; }
 
-	D3D12_GPU_DESCRIPTOR_HANDLE GetSobSRVGPUHandle();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetLLLSRVGPUHandle();
-
-	ID3D12Resource* GetStartOffsetResource();
-	ID3D12Resource* GetLinkedLightListResource();
-	ID3D12Resource* GetUAVCounterResource();
-
-	void ClearUAVs(ID3D12GraphicsCommandList* gfx_command_list);
-
-	void ReadBackDebugData(ID3D12GraphicsCommandList* gfx_command_list, int32 swap_index);
+	ID3D12Resource* GetStartOffsetResource()			{ return m_StartOffsetBuffer; }
+	ID3D12Resource* GetLinkedLightListResource()		{ return m_LinkedIndexList; }
+	ID3D12Resource* GetUAVCounterResource()				{ return m_StartOffsetBufferCounter; }
 
 	ID3D12Resource* GetStartOffsetReadResource();
 	ID3D12Resource* GetLinkedLightListReadResource();
 	ID3D12Resource* GetUAVCounterReadResource();
+
+	void ClearUAVs(ID3D12GraphicsCommandList* gfx_command_list);
+
+	void ReadBackDebugData(ID3D12GraphicsCommandList* gfx_command_list, int32 swap_index);
 
 private:
 

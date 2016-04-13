@@ -1,6 +1,8 @@
 #include "InputManager.h"
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
+
+using namespace Log;
 
 InputManager::InputManager()
 	: m_controller(nullptr)
@@ -26,7 +28,7 @@ InputManager::InputManager()
 			}
 			else 
 			{
-				shared_context.log->LogText(LogLevel::NON_FATAL_ERROR, "Could not open gamecontroller %d : %s", i, SDL_GetError());
+				PRINT(LogLevel::NON_FATAL_ERROR, "Could not open gamecontroller %d : %s", i, SDL_GetError());
 			}
 		}
 	}
@@ -141,33 +143,4 @@ KeyState InputManager::GetKeyState(SDL_Scancode key)
 	return KeyState::UP;
 }
 
-KeyState InputManager::GetKeyState(MouseButton button)
-{
-	return GetKeyState((SDL_Scancode)button);
-}
-
-KeyState InputManager::GetKeyState(GamepadButton button)
-{
-	return GetKeyState((SDL_Scancode)button);
-}
-
-DirectX::SimpleMath::Vector2 InputManager::GetGlobalMousePos()
-{
-	return m_globalMousePos;
-}
-
-DirectX::SimpleMath::Vector2 InputManager::GetDeltaMousPos()
-{
-	return m_deltaMousePos;
-}
-
-ThumbSticks InputManager::GetThumbSticks()
-{
-	return m_thumbSticks;
-}
-
-Triggers InputManager::GetTriggers()
-{
-	return m_triggers;
-}
 

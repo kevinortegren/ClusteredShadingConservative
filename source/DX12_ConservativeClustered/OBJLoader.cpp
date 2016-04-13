@@ -3,7 +3,9 @@
 #include <sstream>
 #include <string>
 #include "SharedContext.h"
-#include "Console/Logging.h"
+#include "Log.h"
+
+using namespace Log;
 
 struct MatMap
 {
@@ -131,6 +133,6 @@ std::unique_ptr<LightShape> OBJLoader::LoadLightShape(const char* file, ID3D12Gr
 			}
 		}
 	}
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Light shape %s has loaded with %d vertices and %d indices!", file, data.vertexData.size(), data.indexData.size());
+	PRINT(LogLevel::DEBUG_PRINT, "Light shape %s has loaded with %d vertices and %d indices!", file, data.vertexData.size(), data.indexData.size());
 	return std::make_unique<LightShape>(&data, gfx_command_list);
 }

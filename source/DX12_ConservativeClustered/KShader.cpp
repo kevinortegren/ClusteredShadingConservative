@@ -1,8 +1,10 @@
 #include "KShader.h"
 #include <iostream>
-#include "Console/Logging.h"
+#include "Log.h"
 #include "SharedContext.h"
 #include <string>
+
+using namespace Log;
 
 KShader::KShader(LPCWSTR file_path, const char* entry_point, const char* target, const D3D_SHADER_MACRO* macro_list)
 {
@@ -18,12 +20,12 @@ KShader::KShader(LPCWSTR file_path, const char* entry_point, const char* target,
 	if (FAILED(hr))
 	{
 		if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
-			shared_context.log->LogText(LogLevel::FATAL_ERROR, "File not found");
+			PRINT(LogLevel::FATAL_ERROR, "File not found");
 		else
-			shared_context.log->LogText(LogLevel::FATAL_ERROR, (char*)errorBlob->GetBufferPointer());
+			PRINT(LogLevel::FATAL_ERROR, (char*)errorBlob->GetBufferPointer());
 	}
 	else
-		shared_context.log->LogText(LogLevel::SUCCESS, "Shader successfully compiled: %ls ", file_path);
+		PRINT(LogLevel::SUCCESS, "Shader successfully compiled: %ls ", file_path);
 
 	D3DReflect(GetBufferPointer(), GetBufferSize(), IID_PPV_ARGS(&m_Reflection));
 	/*
@@ -104,22 +106,12 @@ KShader::~KShader()
 	m_Reflection->Release();
 }
 
-LPVOID KShader::GetBufferPointer()
-{
-	return m_Blob->GetBufferPointer();
-}
-
-SIZE_T KShader::GetBufferSize()
-{
-	return m_Blob->GetBufferSize();
-}
-
 void KShader::PrintShaderInfo(ID3D12ShaderReflection* reflection)
 {
 	D3D12_SHADER_DESC shaderDesc;
 	reflection->GetDesc(&shaderDesc);
 
-	shared_context.log->LogText(LogLevel::PINK_PRINT, "---SHADER INFO---");
+	PRINT(LogLevel::PINK_PRINT, "---SHADER INFO---");
 
 	std::string version;
 	switch (D3D12_SHVER_GET_TYPE(shaderDesc.Version))
@@ -148,103 +140,103 @@ void KShader::PrintShaderInfo(ID3D12ShaderReflection* reflection)
 		version = "COMPUTE SHADER";
 		break;
 	}
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Version: %s", version.c_str());
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Creator: %s", shaderDesc.Creator);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Flags: %d", shaderDesc.Flags);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "ConstantBuffers: %d", shaderDesc.ConstantBuffers);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "BoundResources: %d", shaderDesc.BoundResources);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "InputParameters: %d", shaderDesc.InputParameters);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "OutputParameters: %d", shaderDesc.OutputParameters);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "InstructionCount: %d", shaderDesc.InstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  TextureNormalInstructions: %d", shaderDesc.TextureNormalInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  TextureLoadInstructions: %d", shaderDesc.TextureLoadInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  TextureCompInstructions: %d", shaderDesc.TextureCompInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  TextureBiasInstructions: %d", shaderDesc.TextureBiasInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  TextureGradientInstructions: %d", shaderDesc.TextureGradientInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  FloatInstructionCount: %d", shaderDesc.FloatInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  IntInstructionCount: %d", shaderDesc.IntInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  UintInstructionCount: %d", shaderDesc.UintInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  MacroInstructionCount: %d", shaderDesc.MacroInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  ArrayInstructionCount: %d", shaderDesc.ArrayInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  CutInstructionCount: %d", shaderDesc.CutInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  EmitInstructionCount: %d", shaderDesc.EmitInstructionCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  cBarrierInstructions: %d", shaderDesc.cBarrierInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  cInterlockedInstructions: %d", shaderDesc.cInterlockedInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  cTextureStoreInstructions: %d", shaderDesc.cTextureStoreInstructions);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  Conversion Instruction Count: %d", reflection->GetConversionInstructionCount());
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  Movc Instruction Count: %d", reflection->GetMovcInstructionCount());
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  Mov Instruction Count: %d", reflection->GetMovInstructionCount());
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "  Get Bitwise Instruction Count: %d", reflection->GetBitwiseInstructionCount());
+	PRINT(LogLevel::DEBUG_PRINT, "Version: %s", version.c_str());
+	PRINT(LogLevel::DEBUG_PRINT, "Creator: %s", shaderDesc.Creator);
+	PRINT(LogLevel::DEBUG_PRINT, "Flags: %d", shaderDesc.Flags);
+	PRINT(LogLevel::DEBUG_PRINT, "ConstantBuffers: %d", shaderDesc.ConstantBuffers);
+	PRINT(LogLevel::DEBUG_PRINT, "BoundResources: %d", shaderDesc.BoundResources);
+	PRINT(LogLevel::DEBUG_PRINT, "InputParameters: %d", shaderDesc.InputParameters);
+	PRINT(LogLevel::DEBUG_PRINT, "OutputParameters: %d", shaderDesc.OutputParameters);
+	PRINT(LogLevel::DEBUG_PRINT, "InstructionCount: %d", shaderDesc.InstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  TextureNormalInstructions: %d", shaderDesc.TextureNormalInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  TextureLoadInstructions: %d", shaderDesc.TextureLoadInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  TextureCompInstructions: %d", shaderDesc.TextureCompInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  TextureBiasInstructions: %d", shaderDesc.TextureBiasInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  TextureGradientInstructions: %d", shaderDesc.TextureGradientInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  FloatInstructionCount: %d", shaderDesc.FloatInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  IntInstructionCount: %d", shaderDesc.IntInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  UintInstructionCount: %d", shaderDesc.UintInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  MacroInstructionCount: %d", shaderDesc.MacroInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  ArrayInstructionCount: %d", shaderDesc.ArrayInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  CutInstructionCount: %d", shaderDesc.CutInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  EmitInstructionCount: %d", shaderDesc.EmitInstructionCount);
+	PRINT(LogLevel::DEBUG_PRINT, "  cBarrierInstructions: %d", shaderDesc.cBarrierInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  cInterlockedInstructions: %d", shaderDesc.cInterlockedInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  cTextureStoreInstructions: %d", shaderDesc.cTextureStoreInstructions);
+	PRINT(LogLevel::DEBUG_PRINT, "  Conversion Instruction Count: %d", reflection->GetConversionInstructionCount());
+	PRINT(LogLevel::DEBUG_PRINT, "  Movc Instruction Count: %d", reflection->GetMovcInstructionCount());
+	PRINT(LogLevel::DEBUG_PRINT, "  Mov Instruction Count: %d", reflection->GetMovInstructionCount());
+	PRINT(LogLevel::DEBUG_PRINT, "  Get Bitwise Instruction Count: %d", reflection->GetBitwiseInstructionCount());
 
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "TempRegisterCount: %d", shaderDesc.TempRegisterCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "TempArrayCount: %d", shaderDesc.TempArrayCount);
+	PRINT(LogLevel::DEBUG_PRINT, "TempRegisterCount: %d", shaderDesc.TempRegisterCount);
+	PRINT(LogLevel::DEBUG_PRINT, "TempArrayCount: %d", shaderDesc.TempArrayCount);
 
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "DefCount: %d", shaderDesc.DefCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "DclCount: %d", shaderDesc.DclCount);
+	PRINT(LogLevel::DEBUG_PRINT, "DefCount: %d", shaderDesc.DefCount);
+	PRINT(LogLevel::DEBUG_PRINT, "DclCount: %d", shaderDesc.DclCount);
 
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "StaticFlowControlCount: %d", shaderDesc.StaticFlowControlCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "DynamicFlowControlCount: %d", shaderDesc.DynamicFlowControlCount);
+	PRINT(LogLevel::DEBUG_PRINT, "StaticFlowControlCount: %d", shaderDesc.StaticFlowControlCount);
+	PRINT(LogLevel::DEBUG_PRINT, "DynamicFlowControlCount: %d", shaderDesc.DynamicFlowControlCount);
 
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Interface Slots: %d", reflection->GetNumInterfaceSlots());
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "GSMaxOutputVertexCount: %d", shaderDesc.GSMaxOutputVertexCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "PatchConstantParameters: %d", shaderDesc.PatchConstantParameters);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "cGSInstanceCount: %d", shaderDesc.cGSInstanceCount);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "cControlPoints: %d", shaderDesc.cControlPoints);
+	PRINT(LogLevel::DEBUG_PRINT, "Interface Slots: %d", reflection->GetNumInterfaceSlots());
+	PRINT(LogLevel::DEBUG_PRINT, "GSMaxOutputVertexCount: %d", shaderDesc.GSMaxOutputVertexCount);
+	PRINT(LogLevel::DEBUG_PRINT, "PatchConstantParameters: %d", shaderDesc.PatchConstantParameters);
+	PRINT(LogLevel::DEBUG_PRINT, "cGSInstanceCount: %d", shaderDesc.cGSInstanceCount);
+	PRINT(LogLevel::DEBUG_PRINT, "cControlPoints: %d", shaderDesc.cControlPoints);
 
-	//shared_context.log->LogText(LogLevel::DEBUG_PRINT, "HSOutputPrimitive: %d", shaderDesc.HSOutputPrimitive);
-	//shared_context.log->LogText(LogLevel::DEBUG_PRINT, "HSPartitioning: %d", shaderDesc.HSPartitioning);
-	//shared_context.log->LogText(LogLevel::DEBUG_PRINT, "TessellatorDomain: %d", shaderDesc.TessellatorDomain);
-	//shared_context.log->LogText(LogLevel::DEBUG_PRINT, "InputPrimitive: %d", shaderDesc.InputPrimitive);
-	//shared_context.log->LogText(LogLevel::DEBUG_PRINT, "GSOutputTopology: %d", shaderDesc.GSOutputTopology);
+	//PRINT(LogLevel::DEBUG_PRINT, "HSOutputPrimitive: %d", shaderDesc.HSOutputPrimitive);
+	//PRINT(LogLevel::DEBUG_PRINT, "HSPartitioning: %d", shaderDesc.HSPartitioning);
+	//PRINT(LogLevel::DEBUG_PRINT, "TessellatorDomain: %d", shaderDesc.TessellatorDomain);
+	//PRINT(LogLevel::DEBUG_PRINT, "InputPrimitive: %d", shaderDesc.InputPrimitive);
+	//PRINT(LogLevel::DEBUG_PRINT, "GSOutputTopology: %d", shaderDesc.GSOutputTopology);
 
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "");
+	PRINT(LogLevel::DEBUG_PRINT, "");
 
 	for (uint32 i = 0; i < m_InputElementDesc.size(); i++)
 	{
-		shared_context.log->LogText(LogLevel::PINK_PRINT, "INPUT PARAMETER: %d", i);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Semantic name: %s", m_InputElementDesc[i].SemanticName);
+		PRINT(LogLevel::PINK_PRINT, "INPUT PARAMETER: %d", i);
+		PRINT(LogLevel::DEBUG_PRINT, "Semantic name: %s", m_InputElementDesc[i].SemanticName);
 		switch (m_InputElementDesc[i].Format)
 		{
 		case DXGI_FORMAT_R32_UINT: 
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32_UINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32_UINT");
 			break;
 		case DXGI_FORMAT_R32_SINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32_SINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32_SINT");
 			break;
 		case DXGI_FORMAT_R32_FLOAT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32_FLOAT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32_FLOAT");
 			break;
 		case DXGI_FORMAT_R32G32_UINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32_UINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32_UINT");
 			break;
 		case DXGI_FORMAT_R32G32_SINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32_SINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32_SINT");
 			break;
 		case DXGI_FORMAT_R32G32_FLOAT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32_FLOAT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32_FLOAT");
 			break;
 		case DXGI_FORMAT_R32G32B32_UINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32_UINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32_UINT");
 			break;
 		case DXGI_FORMAT_R32G32B32_SINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32_SINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32_SINT");
 			break;
 		case DXGI_FORMAT_R32G32B32_FLOAT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32_FLOAT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32_FLOAT");
 			break;
 		case DXGI_FORMAT_R32G32B32A32_UINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32A32_UINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32A32_UINT");
 			break;
 		case DXGI_FORMAT_R32G32B32A32_SINT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32A32_SINT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32A32_SINT");
 			break;
 		case DXGI_FORMAT_R32G32B32A32_FLOAT:
-			shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32A32_FLOAT");
+			PRINT(LogLevel::DEBUG_PRINT, "Format: DXGI_FORMAT_R32G32B32A32_FLOAT");
 			break;
 		default:
 			break;
 		}
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "");
+		PRINT(LogLevel::DEBUG_PRINT, "");
 
 	}
 
@@ -252,16 +244,16 @@ void KShader::PrintShaderInfo(ID3D12ShaderReflection* reflection)
 	{
 		D3D12_SHADER_INPUT_BIND_DESC bindDesc;
 		reflection->GetResourceBindingDesc(i, &bindDesc);
-		shared_context.log->LogText(LogLevel::PINK_PRINT, "RESOURCE BINDING: %d", i);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Bind Point: %d", bindDesc.BindPoint);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Bind Count: %d", bindDesc.BindCount);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Name: %s", bindDesc.Name);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "NumSamples: %d", bindDesc.NumSamples);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Space: %d", bindDesc.Space);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Type: %d", bindDesc.Type);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Dimension: %d", bindDesc.Dimension);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Return type: %d", bindDesc.ReturnType);
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "");
+		PRINT(LogLevel::PINK_PRINT, "RESOURCE BINDING: %d", i);
+		PRINT(LogLevel::DEBUG_PRINT, "Bind Point: %d", bindDesc.BindPoint);
+		PRINT(LogLevel::DEBUG_PRINT, "Bind Count: %d", bindDesc.BindCount);
+		PRINT(LogLevel::DEBUG_PRINT, "Name: %s", bindDesc.Name);
+		PRINT(LogLevel::DEBUG_PRINT, "NumSamples: %d", bindDesc.NumSamples);
+		PRINT(LogLevel::DEBUG_PRINT, "Space: %d", bindDesc.Space);
+		PRINT(LogLevel::DEBUG_PRINT, "Type: %d", bindDesc.Type);
+		PRINT(LogLevel::DEBUG_PRINT, "Dimension: %d", bindDesc.Dimension);
+		PRINT(LogLevel::DEBUG_PRINT, "Return type: %d", bindDesc.ReturnType);
+		PRINT(LogLevel::DEBUG_PRINT, "");
 	}
 }
 

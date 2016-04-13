@@ -63,28 +63,4 @@ void KDepthTarget::CreateDepthTarget(int32 width, int32 height)
 	shared_context.gfx_device->GetDevice()->CreateShaderResourceView(m_DTResource, &SRVDesc, m_SRVCPUHandle);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE KDepthTarget::GetDSVCPUHandle()
-{
-	return m_DSVCPUHandle;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE KDepthTarget::GetDSVGPUHandle()
-{
-	return m_DSVGPUHandle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE KDepthTarget::GetSRVCPUHandle()
-{
-	return m_SRVCPUHandle;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE KDepthTarget::GetSRVGPUHandle()
-{
-	return m_SRVGPUHandle;
-}
-
-ID3D12Resource* KDepthTarget::GetResource()
-{
-	return m_DTResource;
-}
 

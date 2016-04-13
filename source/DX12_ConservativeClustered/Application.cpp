@@ -6,40 +6,42 @@
 
 SharedContext shared_context;
 
-Application::Application(char* working_dir)
+using namespace Log;
+
+Application::Application(char* p_args)
 	: m_moveLights(false), m_running(true), m_showShapes(false), m_showSpotLights(true), m_showPointLights(true), m_numSpotShapes(0), m_numPointShapes(15),
 	time_shell(0.0f), time_fill(0.0f), time_geometry(0.0f), time_shading(0.0f), time_spot_shell(0.0f), time_spot_fill(0.0f), m_fps(0), time_tot(0.0f),
 	time_tot_LA(0.0f), m_useLowLODSphere(true), m_useLowLODCone(true), m_firstFrame(true), m_completeClusterSnap(true), m_useOldShellPipe(false),
 	m_showLightDensity(false), m_depthDist(DEPTH_DIST::EXPONENTIAL), m_activeSnapType(LIGHT_TYPE::POINT), m_activeLightSnapIndex(14), m_numPointLights(Constants::NR_POINTLIGHTS), 
 	m_numSpotLights(Constants::NR_SPOTLIGHTS), m_nrclusts(0)
 {
-	shared_context.log = new Logging();
-	shared_context.log->OpenLogStream(working_dir);
+	
+	Log::InitLogColors();
 
-	shared_context.log->LogText(LogLevel::INIT_PRINT, "---STARTING APP---");
+	PRINT(LogLevel::INIT_PRINT, "---STARTING APP---");
 
 	Init();
 
 	SetupAntTweakBar();
 
-	shared_context.log->LogText(LogLevel::SUCCESS, "DX12 set up correctly! Running main loop now with settings:");
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "WINDOW_WIDTH:  %d",  Constants::WINDOW_WIDTH);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "WINDOW_HEIGHT: %d", Constants::WINDOW_HEIGHT);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "FARZ:  %f", Constants::FARZ);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NEARZ: %f", Constants::NEARZ);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NR_X_CLUSTS:  %d", Constants::NR_X_CLUSTS);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NR_Y_CLUSTS:  %d", Constants::NR_Y_CLUSTS);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NR_Z_CLUSTS:  %d", Constants::NR_Z_CLUSTS);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NR_OF_CLUSTS: %d USING MEM: %d bytes", Constants::NR_OF_CLUSTS, Constants::NR_OF_CLUSTS * sizeof(uint32));
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NR_SPOTLIGHTS:  %d USING MEM: %d bytes", Constants::NR_SPOTLIGHTS, Constants::NR_SPOTLIGHTS * sizeof(SpotLight));
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "NR_POINTLIGHTS: %d USING MEM: %d bytes", Constants::NR_POINTLIGHTS, Constants::NR_POINTLIGHTS * sizeof(PointLight));
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "MAX_LIGHTS_PER_CLUSTER: %d", Constants::MAX_LIGHTS_PER_CLUSTER);
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "LIGHT_INDEX_LIST_COUNT: %d USING MEM: %d bytes", Constants::LIGHT_INDEX_LIST_COUNT, Constants::LIGHT_INDEX_LIST_COUNT * sizeof(LinkedLightID));
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "--DESCRIPTOR HEAP INFO--");
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "Descpriptor heap CSU: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapCBV_SRV()->GetSize(), shared_context.gfx_device->GetDescHeapCBV_SRV()->GetCapacity());
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "Descpriptor heap sampler: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapSampler()->GetSize(), shared_context.gfx_device->GetDescHeapSampler()->GetCapacity());
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "Descpriptor heap RTV: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapRTV()->GetSize(), shared_context.gfx_device->GetDescHeapRTV()->GetCapacity());
-	shared_context.log->LogText(LogLevel::HELP_PRINT, "Descpriptor heap DSV: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapDSV()->GetSize(), shared_context.gfx_device->GetDescHeapDSV()->GetCapacity());
+	PRINT(LogLevel::SUCCESS, "DX12 set up correctly! Running main loop now with settings:");
+	PRINT(LogLevel::HELP_PRINT, "WINDOW_WIDTH:  %d",  Constants::WINDOW_WIDTH);
+	PRINT(LogLevel::HELP_PRINT, "WINDOW_HEIGHT: %d", Constants::WINDOW_HEIGHT);
+	PRINT(LogLevel::HELP_PRINT, "FARZ:  %f", Constants::FARZ);
+	PRINT(LogLevel::HELP_PRINT, "NEARZ: %f", Constants::NEARZ);
+	PRINT(LogLevel::HELP_PRINT, "NR_X_CLUSTS:  %d", Constants::NR_X_CLUSTS);
+	PRINT(LogLevel::HELP_PRINT, "NR_Y_CLUSTS:  %d", Constants::NR_Y_CLUSTS);
+	PRINT(LogLevel::HELP_PRINT, "NR_Z_CLUSTS:  %d", Constants::NR_Z_CLUSTS);
+	PRINT(LogLevel::HELP_PRINT, "NR_OF_CLUSTS: %d USING MEM: %d bytes", Constants::NR_OF_CLUSTS, Constants::NR_OF_CLUSTS * sizeof(uint32));
+	PRINT(LogLevel::HELP_PRINT, "NR_SPOTLIGHTS:  %d USING MEM: %d bytes", Constants::NR_SPOTLIGHTS, Constants::NR_SPOTLIGHTS * sizeof(SpotLight));
+	PRINT(LogLevel::HELP_PRINT, "NR_POINTLIGHTS: %d USING MEM: %d bytes", Constants::NR_POINTLIGHTS, Constants::NR_POINTLIGHTS * sizeof(PointLight));
+	PRINT(LogLevel::HELP_PRINT, "MAX_LIGHTS_PER_CLUSTER: %d", Constants::MAX_LIGHTS_PER_CLUSTER);
+	PRINT(LogLevel::HELP_PRINT, "LIGHT_INDEX_LIST_COUNT: %d USING MEM: %d bytes", Constants::LIGHT_INDEX_LIST_COUNT, Constants::LIGHT_INDEX_LIST_COUNT * sizeof(LinkedLightID));
+	PRINT(LogLevel::HELP_PRINT, "--DESCRIPTOR HEAP INFO--");
+	PRINT(LogLevel::HELP_PRINT, "Descpriptor heap CSU: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapCBV_SRV()->GetSize(), shared_context.gfx_device->GetDescHeapCBV_SRV()->GetCapacity());
+	PRINT(LogLevel::HELP_PRINT, "Descpriptor heap sampler: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapSampler()->GetSize(), shared_context.gfx_device->GetDescHeapSampler()->GetCapacity());
+	PRINT(LogLevel::HELP_PRINT, "Descpriptor heap RTV: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapRTV()->GetSize(), shared_context.gfx_device->GetDescHeapRTV()->GetCapacity());
+	PRINT(LogLevel::HELP_PRINT, "Descpriptor heap DSV: %d / %d descriptors used", shared_context.gfx_device->GetDescHeapDSV()->GetSize(), shared_context.gfx_device->GetDescHeapDSV()->GetCapacity());
 
 	Run();
 
@@ -52,7 +54,6 @@ Application::Application(char* working_dir)
 Application::~Application()
 {
 	delete shared_context.gfx_device;
-	delete shared_context.log;
 }
 
 void Application::Init()
@@ -98,22 +99,22 @@ void Application::Init()
 
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODesc, IID_PPV_ARGS(&g_PSO));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create PSO");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create PSO");
 
 	PSODesc.PS = { reinterpret_cast<BYTE*>(pixelShaderLinear.GetBufferPointer()), pixelShaderLinear.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODesc, IID_PPV_ARGS(&m_PSOLinear));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create PSOLinear");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create PSOLinear");
 
 	PSODesc.PS = { reinterpret_cast<BYTE*>(pixelShaderColor.GetBufferPointer()), pixelShaderColor.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODesc, IID_PPV_ARGS(&m_PSOColor));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOColor");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOColor");
 
 	PSODesc.PS = { reinterpret_cast<BYTE*>(pixelShaderLinearColor.GetBufferPointer()), pixelShaderLinearColor.GetBufferSize() };
 	hr = shared_context.gfx_device->GetDevice()->CreateGraphicsPipelineState(&PSODesc, IID_PPV_ARGS(&m_PSOLinearColor));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create m_PSOLinearColor");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create m_PSOLinearColor");
 
 	//Create sampler
 	m_wrapSampler = shared_context.gfx_device->CreateSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
@@ -137,7 +138,7 @@ void Application::Init()
 	//Load assets to VRAM 
 	hr = shared_context.gfx_device->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, shared_context.gfx_device->GetCommandAllocator(), g_PSO, IID_PPV_ARGS(&g_CommandList));
 	if (FAILED(hr))
-		shared_context.log->LogText(LogLevel::FATAL_ERROR, "Failed to create GFX commandlist");
+		PRINT(LogLevel::FATAL_ERROR, "Failed to create GFX commandlist");
 
 	OBJLoader loader;
 	g_SponzaModel	 = loader.LoadBIN("../assets/models/sponza.bin", g_CommandList);
@@ -641,8 +642,8 @@ void Application::ShadeClusterSnapShot()
 
 		}
 	}
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Num shaded clusters: %d", num_clusters);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Max lights in clusters: %d", max_lights_in_clusts);
+	PRINT(LogLevel::DEBUG_PRINT, "Num shaded clusters: %d", num_clusters);
+	PRINT(LogLevel::DEBUG_PRINT, "Max lights in clusters: %d", max_lights_in_clusts);
 	m_clusterRenderer->UploadClusters();
 	m_laRaster->GetStartOffsetReadResource()->Unmap(0, nullptr);
 	m_laRaster->GetLinkedLightListReadResource()->Unmap(0, nullptr);
@@ -679,7 +680,7 @@ void Application::ShapeClusterSnapShot()
 				light_index = linked_light.link;
 			}
 		}
-		shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Num clusters: %d", num_clusters);
+		PRINT(LogLevel::DEBUG_PRINT, "Num clusters: %d", num_clusters);
 		m_clusterRenderer->UploadClusters();
 		m_laRaster->GetStartOffsetReadResource()->Unmap(0, nullptr);
 		m_laRaster->GetLinkedLightListReadResource()->Unmap(0, nullptr);
@@ -691,7 +692,7 @@ void Application::ClusterSnapShotCount()
 	m_completeClusterSnap = false;
 	int32* datta = nullptr;
 	m_laRaster->GetUAVCounterReadResource()->Map(0, &CD3DX12_RANGE(0, 0), (void**)&datta);
-	shared_context.log->LogText(LogLevel::DEBUG_PRINT, "Total cluster assignments: %d", *datta);
+	PRINT(LogLevel::DEBUG_PRINT, "Total cluster assignments: %d", *datta);
 	m_nrclusts = *datta;
 	m_laRaster->GetUAVCounterReadResource()->Unmap(0, nullptr);
 }
