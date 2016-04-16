@@ -1,6 +1,8 @@
 # Clustered Shading: Assigning Lights Using Conservative Rasterization in DirectX 12
 DirectX 12 light culling technique featured in GPU Pro 7
 
+##[Screenshots](http://www.kevinortegren.com/portfolio/clustered-shading-assigning-arbitrarily-shaped-convex-light-volumes-using-conservative-rasterization/)##
+
 
 Platform: Windows 10 x64 on Graphics cards with D3D12 Conservative Rasterization feature (Currently Nvidia Maxwell 2.0 and Intel Skylake GPUs)
 
@@ -87,6 +89,3 @@ The UI has the following functionality:
 **Note:**
 
 The UI uses a modified version of AntTweakBar to work with DX12 and does exhibit some minor issues. Numpad keys don't work as input. Input fields are not cleared immediately on new input. Mouse events are forwarded to the camera movement through the UI...
-
-
-Screenshots and some outdated info: http://www.kevinortegren.com/portfolio/clustered-shading-assigning-arbitrarily-shaped-convex-light-volumes-using-conservative-rasterization/
