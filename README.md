@@ -1,13 +1,11 @@
 # Clustered Shading: Assigning Lights Using Conservative Rasterization in DirectX 12
 DirectX 12 light culling technique featured in GPU Pro 7
 
-##[Screenshots](http://www.kevinortegren.com/portfolio/clustered-shading-assigning-arbitrarily-shaped-convex-light-volumes-using-conservative-rasterization/)##
+
+Platform: Windows 10 x64 on Graphics cards with D3D12 Conservative Rasterization feature (Currently Nvidia Maxwell 2.0 or newer and Intel Skylake GPUs or newer)
 
 
-Platform: Windows 10 x64 on Graphics cards with D3D12 Conservative Rasterization feature (Currently Nvidia Maxwell 2.0 and Intel Skylake GPUs)
-
-
-##Build
+## Build
 
 1. Run "generate_VS_solution.bat" and a /build folder will contain the Visual Studio 2015 solution.
 
@@ -20,8 +18,8 @@ To build Debug you must install DirectX Graphics Tools from Windows 10 Feature-O
 Constants.h contains some tweakable variables.
 
 
-##Controls and Shortcuts
-###Keyboard & Mouse
+## Controls and Shortcuts
+### Keyboard & Mouse
 
 Hold LMB + move mouse to look around
 
@@ -40,15 +38,15 @@ F           - Take a snap shot of current view and display all the clusters wher
 ESC         - Exit program
 
 
-###Gamepad
-![Mapping](http://kevinortegren.com/Downloads/Img/controller_mapping.png)
+### Gamepad
+![Mapping](https://raw.githubusercontent.com/kevinortegren/kevinortegren.github.io/master/images/ConservativeClusteredShading/controller_mapping.png)
 
 
 All shortcuts are accessible through the UI.
 
-![Settings](http://kevinortegren.com/Downloads/Img/Settings.png)
+![Settings](https://raw.githubusercontent.com/kevinortegren/kevinortegren.github.io/master/images/ConservativeClusteredShading/Settings.png)
 
-##UI
+## UI
 
 The UI has the following functionality:
 
@@ -70,7 +68,7 @@ The UI has the following functionality:
 - Select precise or approximated clustering(Use approx. pipe). 
 - Show density map with radar colors that shows the number of lights processed per pixel. See legend for color explanation.
 
-![Legend](http://kevinortegren.com/Downloads/Img/legend.png)
+![Legend](https://raw.githubusercontent.com/kevinortegren/kevinortegren.github.io/master/images/ConservativeClusteredShading/legend.png)
 
 - Print number of indices in the Linked Light List.
 - Take a snapshot of all the clusters that were accessed for lighting the frame. Display the clusters in world space to look at.
